@@ -799,7 +799,7 @@ input[type="number"] {
 
 .campaigns__grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
     gap: 30px;
     margin-top: 40px;
 }
@@ -812,35 +812,29 @@ input[type="number"] {
   transition: all 0.3s ease;
   cursor: pointer;
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 1.806 / 1;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 .campaign__card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 8px 25px rgba(var(--nero-rgb), 0.15);
-}
-
-.campaign__card::after {
-  content: "Click to Reserve";
-  position: absolute;
-  bottom: 15px;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: var(--primary-color);
-  color: var(--white);
-  padding: 5px 16px;
-  border-radius: 5px;
-  font-size: 0.9rem;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.campaign__card:hover::after {
-  opacity: 1;
+  box-shadow: 0 0 25px rgba(var(--venetian-red-rgb), 0.3);
+  border: 2px solid rgba(var(--venetian-red-rgb), 0.4);
 }
 
 .campaign__content {
   padding: 1.5rem;
   text-align: center;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .reserve-here {
@@ -1342,4 +1336,76 @@ button.loading::after {
     border-top: 3px solid transparent;
     border-radius: 50%;
     animation: spin 1s linear infinite;
+}
+
+.campaign__card:hover .campaign__content h3,
+.campaign__card:hover .campaign__content p,
+.campaign__card:hover .campaign__content .qr-code,
+.campaign__card:hover .campaign__content .reserve-here {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.campaign__card:hover .dave-image {
+  display: block;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.dave-image {
+  display: none;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  object-fit: cover;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: none;
+}
+
+/* Add these media queries for touch devices */
+@media (hover: none) and (pointer: coarse) {
+  .campaign__card.long-press .campaign__content h3,
+  .campaign__card.long-press .campaign__content p,
+  .campaign__card.long-press .campaign__content .qr-code,
+  .campaign__card.long-press .campaign__content .reserve-here {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .campaign__card.long-press {
+    transform: translateY(-5px);
+    box-shadow: 0 0 25px rgba(var(--venetian-red-rgb), 0.3);
+    border: 2px solid rgba(var(--venetian-red-rgb), 0.4);
+  }
+
+  .campaign__card.long-press .dave-image {
+    display: block;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+  }
+}
+
+/* Prevent hover effects on touch devices */
+@media (hover: hover) {
+  .campaign__card:hover .campaign__content h3,
+  .campaign__card:hover .campaign__content p,
+  .campaign__card:hover .campaign__content .qr-code,
+  .campaign__card:hover .campaign__content .reserve-here {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .campaign__card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0 25px rgba(var(--venetian-red-rgb), 0.3);
+    border: 2px solid rgba(var(--venetian-red-rgb), 0.4);
+  }
+
+  .campaign__card:hover .dave-image {
+    display: block;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+  }
 }

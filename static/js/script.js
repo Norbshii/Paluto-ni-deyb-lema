@@ -15,6 +15,8 @@ document.addEventListener('DOMContentLoaded', function() {
     let isLocked = false;
     let visitorInfo = null;
     let lastReservationData = null;
+    let pressTimer;
+    const PRESS_DURATION = 100; // 0.1 seconds
 
     // Show visitor form on page load if no visitor info exists
     const storedVisitorInfo = sessionStorage.getItem('visitorInfo');
@@ -499,4 +501,38 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         `;
     }
+
+    // Long press handling for campaign cards
+    campaignCards.forEach(card => {
+        // Touch start event
+        card.addEventListener('touchstart', function(e) {
+            pressTimer = setTimeout(() => {
+                card.classList.add('long-press');
+            }, PRESS_DURATION);
+        });
+
+        // Touch end event
+        card.addEventListener('touchend', function(e) {
+            clearTimeout(pressTimer);
+        });
+
+        // Touch cancel event
+        card.addEventListener('touchcancel', function(e) {
+            clearTimeout(pressTimer);
+        });
+
+        // Touch move event (cancel if user moves finger)
+        card.addEventListener('touchmove', function(e) {
+            clearTimeout(pressTimer);
+        });
+
+        // Remove long-press class when touch ends
+        ['touchend', 'touchcancel', 'touchmove'].forEach(event => {
+            card.addEventListener(event, function() {
+                setTimeout(() => {
+                    card.classList.remove('long-press');
+                }, 1000); // Keep the effect for 1 second after releasing
+            });
+        });
+    });
 }); 

@@ -13,28 +13,45 @@ scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/au
 
 def get_credentials():
     """Get credentials either from environment variable or local file"""
-    if os.environ.get('GOOGLE_CREDENTIALS'):
+    # Debug: Print all environment variables (excluding their values for security)
+    print("Available environment variables:", list(os.environ.keys()))
+    
+    google_creds = os.environ.get('GOOGLE_CREDENTIALS')
+    if google_creds:
         try:
+            print("Found GOOGLE_CREDENTIALS in environment variables")
             # Load from environment variable
-            creds_dict = json.loads(os.environ.get('GOOGLE_CREDENTIALS'))
+            creds_dict = json.loads(google_creds)
+            
+            # Debug: Print keys in credentials (but not values)
+            print("Credential keys found:", list(creds_dict.keys()))
             
             # Fix private key if it's escaped
             if isinstance(creds_dict.get('private_key'), str):
                 creds_dict['private_key'] = creds_dict['private_key'].replace('\\n', '\n')
+                print("Private key processed")
             
             return ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
+        except json.JSONDecodeError as e:
+            print("Error decoding JSON credentials:", str(e))
+            print("First 100 characters of credentials:", google_creds[:100])
+            raise
         except Exception as e:
             print(f"Error loading credentials from environment: {str(e)}")
             raise
     else:
+        print("GOOGLE_CREDENTIALS not found in environment variables")
         raise ValueError("No credentials found. Please set GOOGLE_CREDENTIALS environment variable.")
 
 try:
+    print("Attempting to get credentials...")
     creds = get_credentials()
+    print("Credentials obtained, authorizing client...")
     client = gspread.authorize(creds)
     print("Successfully initialized Google Sheets client")
 except Exception as e:
     print(f"Error initializing Google Sheets client: {str(e)}")
+    print(f"Full traceback: {traceback.format_exc()}")
     raise
 
 # Replace with your Google Sheet name

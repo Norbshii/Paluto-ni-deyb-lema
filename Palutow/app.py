@@ -11,27 +11,31 @@ app = Flask(__name__, static_folder='static')
 # Google Sheets setup
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 
-# Load credentials from environment variable in production, fall back to file in development
-if os.environ.get('GOOGLE_CREDENTIALS'):
-    try:
-        # Load from environment variable
-        creds_dict = json.loads(os.environ.get('GOOGLE_CREDENTIALS'))
-        
-        # Fix private key if it's escaped
-        if isinstance(creds_dict.get('private_key'), str):
-            creds_dict['private_key'] = creds_dict['private_key'].replace('\\n', '\n')
-        
-        creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
-        print("Loaded credentials from environment variable")
-    except Exception as e:
-        print(f"Error loading credentials from environment: {str(e)}")
-        raise
-else:
-    # Load from file (for local development)
-    creds = ServiceAccountCredentials.from_json_keyfile_name('credentials.json', scope)
-    print("Loaded credentials from file")
+def get_credentials():
+    """Get credentials either from environment variable or local file"""
+    if os.environ.get('GOOGLE_CREDENTIALS'):
+        try:
+            # Load from environment variable
+            creds_dict = json.loads(os.environ.get('GOOGLE_CREDENTIALS'))
+            
+            # Fix private key if it's escaped
+            if isinstance(creds_dict.get('private_key'), str):
+                creds_dict['private_key'] = creds_dict['private_key'].replace('\\n', '\n')
+            
+            return ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
+        except Exception as e:
+            print(f"Error loading credentials from environment: {str(e)}")
+            raise
+    else:
+        raise ValueError("No credentials found. Please set GOOGLE_CREDENTIALS environment variable.")
 
-client = gspread.authorize(creds)
+try:
+    creds = get_credentials()
+    client = gspread.authorize(creds)
+    print("Successfully initialized Google Sheets client")
+except Exception as e:
+    print(f"Error initializing Google Sheets client: {str(e)}")
+    raise
 
 # Replace with your Google Sheet name
 SPREADSHEET_NAME = 'PALUTO_Reservations'

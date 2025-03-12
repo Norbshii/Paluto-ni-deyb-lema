@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let lastReservationData = null;
     let pressTimer;
     const PRESS_DURATION = 100; // 0.1 seconds
+    let lastTap = 0;
 
     // Show visitor form on page load if no visitor info exists
     const storedVisitorInfo = sessionStorage.getItem('visitorInfo');
@@ -502,37 +503,131 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
     }
 
-    // Long press handling for campaign cards
+    // Prevent double-tap zoom on iOS
+    document.addEventListener('touchend', function(e) {
+        const now = Date.now();
+        const DOUBLE_TAP_DELAY = 300;
+        if (lastTap && (now - lastTap) < DOUBLE_TAP_DELAY) {
+            e.preventDefault();
+        }
+        lastTap = now;
+    }, false);
+
+    // Prevent pull-to-refresh on mobile
+    document.body.addEventListener('touchmove', function(e) {
+        if (window.pageYOffset === 0) {
+            e.preventDefault();
+        }
+    }, { passive: false });
+
+    // Improve modal scrolling on mobile
+    const modalContents = document.querySelectorAll('.modal-content');
+    modalContents.forEach(content => {
+        content.addEventListener('touchmove', function(e) {
+            e.stopPropagation();
+        }, { passive: true });
+    });
+
+    // Enhanced touch feedback for campaign cards
     campaignCards.forEach(card => {
-        // Touch start event
+        let touchStartY = 0;
+        let touchEndY = 0;
+        const MIN_SWIPE_DISTANCE = 50;
+
         card.addEventListener('touchstart', function(e) {
+            touchStartY = e.touches[0].clientY;
+            this.classList.add('touching');
+            
+            // Start long press timer
             pressTimer = setTimeout(() => {
-                card.classList.add('long-press');
+                this.classList.add('long-press');
             }, PRESS_DURATION);
-        });
+        }, { passive: true });
 
-        // Touch end event
-        card.addEventListener('touchend', function(e) {
-            clearTimeout(pressTimer);
-        });
-
-        // Touch cancel event
-        card.addEventListener('touchcancel', function(e) {
-            clearTimeout(pressTimer);
-        });
-
-        // Touch move event (cancel if user moves finger)
         card.addEventListener('touchmove', function(e) {
+            touchEndY = e.touches[0].clientY;
+            const distance = Math.abs(touchEndY - touchStartY);
+            
+            // If user is scrolling, cancel the long press
+            if (distance > MIN_SWIPE_DISTANCE) {
+                clearTimeout(pressTimer);
+                this.classList.remove('touching');
+            }
+        }, { passive: true });
+
+        card.addEventListener('touchend', function() {
             clearTimeout(pressTimer);
+            this.classList.remove('touching');
+            
+            // Remove long-press class after delay
+            setTimeout(() => {
+                this.classList.remove('long-press');
+            }, 1000);
         });
 
-        // Remove long-press class when touch ends
-        ['touchend', 'touchcancel', 'touchmove'].forEach(event => {
-            card.addEventListener(event, function() {
-                setTimeout(() => {
-                    card.classList.remove('long-press');
-                }, 1000); // Keep the effect for 1 second after releasing
-            });
+        card.addEventListener('touchcancel', function() {
+            clearTimeout(pressTimer);
+            this.classList.remove('touching');
+            this.classList.remove('long-press');
+        });
+    });
+
+    // Improve form input handling on mobile
+    const formInputs = document.querySelectorAll('input, select, textarea');
+    formInputs.forEach(input => {
+        // Prevent zoom on focus for iOS
+        input.addEventListener('focus', function() {
+            document.body.classList.add('input-focused');
+        });
+
+        input.addEventListener('blur', function() {
+            document.body.classList.remove('input-focused');
+        });
+
+        // Add visual feedback for touch
+        input.addEventListener('touchstart', function() {
+            this.classList.add('touch-active');
+        });
+
+        input.addEventListener('touchend', function() {
+            this.classList.remove('touch-active');
+        });
+    });
+
+    // Improve modal handling on mobile
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(modal => {
+        modal.addEventListener('touchmove', function(e) {
+            if (e.target === modal) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        // Close modal on swipe down
+        let startY = 0;
+        let currentY = 0;
+        const SWIPE_THRESHOLD = 100;
+
+        modal.addEventListener('touchstart', function(e) {
+            if (e.target === modal) {
+                startY = e.touches[0].clientY;
+            }
+        }, { passive: true });
+
+        modal.addEventListener('touchmove', function(e) {
+            if (e.target === modal) {
+                currentY = e.touches[0].clientY;
+            }
+        }, { passive: true });
+
+        modal.addEventListener('touchend', function(e) {
+            if (e.target === modal && (currentY - startY) > SWIPE_THRESHOLD) {
+                modal.style.display = 'none';
+                document.body.classList.remove('modal-open');
+                if (isLocked) {
+                    unlockCampaign();
+                }
+            }
         });
     });
 }); 

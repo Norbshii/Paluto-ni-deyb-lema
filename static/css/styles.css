@@ -109,15 +109,17 @@ a {
 }
 
 html {
-  font-size: 100%;
-  -webkit-text-size-adjust: 100%; /* Added zoom property */
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
-  zoom: 1.25; /* Added zoom property */
 }
 
 body {
   font-family: "Poppins", sans-serif;
-  padding-top: 80px; /* Adjust based on the height of the nav bar */
+  padding-top: 60px; /* Reduced padding for mobile */
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 nav {
@@ -131,7 +133,8 @@ nav {
 }
 
 .nav__header {
-  padding: 1rem 2rem;
+  padding: 0.8rem 1rem;
+  height: 70px; /* Increased height for mobile */
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -141,17 +144,23 @@ nav {
   display: flex;
   align-items: center;
   text-decoration: none;
+  gap: 10px;
+}
+
+.nav__logo-img {
+  width: 45px; /* Increased logo size for mobile */
+  height: auto;
 }
 
 .logo-text {
-  font-size: 1.5rem;
+  font-size: 1.4rem; /* Increased font size for mobile */
   font-weight: 700;
   color: var(--primary-color);
   margin-left: 10px;
 }
 
 .nav__logo-img {
-  width: 40px;
+  width: 32px; /* Smaller logo for mobile */
   height: auto;
 }
 
@@ -198,16 +207,30 @@ nav {
   align-items: center;
 }
 
+.header__content {
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
 .header__content h1 {
-  margin-bottom: 1rem;
-  font-size: 3rem;
+  margin-bottom: 1.5rem;
+  font-size: 2.5rem;
   font-weight: 700;
   color: var(--text-dark);
+  line-height: 1.2;
 }
 
 .header__content h1 span {
   font-weight: 700;
   color: var(--primary-color);
+  display: inline-block;
+}
+
+.header__content .section__description {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin: 1.5rem auto;
+  max-width: 600px;
 }
 
 .header__image img {
@@ -749,6 +772,7 @@ textarea {
 
   .header__content {
     text-align: left;
+    padding: 3rem 2rem;
   }
 
   .header__content .section__description {
@@ -799,9 +823,9 @@ input[type="number"] {
 
 .campaigns__grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 30px;
-    margin-top: 40px;
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 0 15px;
 }
 
 .campaign__card {
@@ -816,9 +840,12 @@ input[type="number"] {
   align-items: center;
   justify-content: center;
   width: 100%;
+  margin: 0 auto;
+  max-width: 450px;
   aspect-ratio: 1.806 / 1;
-  -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
 }
 
 .campaign__card:hover {
@@ -828,7 +855,7 @@ input[type="number"] {
 }
 
 .campaign__content {
-  padding: 1.5rem;
+  padding: 1.2rem;
   text-align: center;
   width: 100%;
   height: 100%;
@@ -883,15 +910,13 @@ input[type="number"] {
 }
 
 .campaign__content h3 {
-  color: var(--text-dark);
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
+  font-size: 1.3rem;
+  margin-bottom: 0.8rem;
 }
 
 .campaign__content p {
-  color: var(--text-light);
-  margin-bottom: 1.5rem;
-  line-height: 1.6;
+  font-size: 0.95rem;
+  line-height: 1.4;
 }
 
 .campaign-btn {
@@ -1408,4 +1433,67 @@ button.loading::after {
     opacity: 1;
     transition: opacity 0.3s ease;
   }
+}
+
+/* Tablet Breakpoint */
+@media (min-width: 768px) {
+    body {
+        padding-top: 80px;
+    }
+
+    .campaigns__grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 25px;
+        padding: 0 20px;
+    }
+
+    .nav__header {
+        padding: 1rem 2rem;
+        height: 80px;
+    }
+
+    .logo-text {
+        font-size: 1.5rem;
+    }
+
+    .nav__logo-img {
+        width: 40px;
+    }
+
+    .modal-content {
+        width: 90%;
+        padding: 20px;
+    }
+}
+
+/* Desktop Breakpoint */
+@media (min-width: 1024px) {
+    .campaigns__grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 30px;
+        padding: 0;
+    }
+
+    .modal-content {
+        width: 80%;
+        max-width: 600px;
+    }
+}
+
+/* Improved Mobile Touch Interactions */
+@media (hover: none) {
+    .campaign__card {
+        transition: transform 0.2s ease;
+    }
+
+    .campaign__card:active {
+        transform: scale(0.98);
+    }
+}
+
+/* Desktop Hover Effects */
+@media (hover: hover) {
+    .campaign__card:hover {
+        transform: translateY(-5px);
+    }
 }

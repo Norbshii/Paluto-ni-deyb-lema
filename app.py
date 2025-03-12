@@ -4,12 +4,22 @@ from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime
 import os
 import traceback
+import json
 
 app = Flask(__name__, static_folder='static')
 
 # Google Sheets setup
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-creds = ServiceAccountCredentials.from_json_keyfile_name('credentials.json', scope)
+
+# Get credentials from environment variable
+if os.environ.get('GOOGLE_CREDENTIALS'):
+    # Create a temporary credentials file from environment variable
+    creds_dict = json.loads(os.environ.get('GOOGLE_CREDENTIALS'))
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
+else:
+    # Fallback to local file for development
+    creds = ServiceAccountCredentials.from_json_keyfile_name('credentials.json', scope)
+
 client = gspread.authorize(creds)
 
 # Replace with your Google Sheet name

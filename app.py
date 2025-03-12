@@ -5,8 +5,12 @@ from datetime import datetime
 import os
 import traceback
 import json
+from pytz import timezone
 
 app = Flask(__name__, static_folder='static')
+
+# Set timezone to Manila
+manila_tz = timezone('Asia/Manila')
 
 # Google Sheets setup
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
@@ -134,7 +138,8 @@ def submit_visitor():
             # Get next available row
             next_row = len(worksheet.get_all_values()) + 1
             
-            timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            # Get current time in Manila timezone
+            timestamp = datetime.now(manila_tz).strftime('%Y-%m-%d %H:%M:%S')
             
             # Insert new row
             worksheet.append_row([
@@ -184,10 +189,13 @@ def submit_reservation():
             next_row = len(worksheet.get_all_values()) + 1
             reservation_code = generate_reservation_code(campaign, next_row)
             
+            # Get current time in Manila timezone
+            timestamp = datetime.now(manila_tz).strftime('%Y-%m-%d %H:%M:%S')
+            
             # Insert new reservation
             worksheet.append_row([
                 reservation_code,
-                datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                timestamp,
                 data['fullName'],
                 data['phoneNumber'],
                 data['inquiryType'],  
